@@ -14,3 +14,9 @@
 - Navigated to the extracted folder:  
   ```bash
   cd riscv-toolchain-rv32imac-x86_64-ubuntu
+### 3. Verify RISC-V Toolchain Commands
+
+Check GCC version:
+
+```bash
+riscv32-unknown-elf-gcc --version
