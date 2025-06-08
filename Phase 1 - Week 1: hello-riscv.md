@@ -88,16 +88,12 @@ _(Include my terminal output screenshot below)_
 
 Create a minimal C "Hello World" program and successfully cross-compile it for the RISC-V RV32 architecture, producing a valid 32-bit RISC-V ELF executable.
 
----
-
 ## 📋 Prerequisites
 
 ✅ RISC-V toolchain installed and configured (Task 1 completed)  
 ✅ PATH environment variable set to `/opt/riscv/riscv/bin`  
 ✅ Verified `riscv32-unknown-elf-gcc` functionality  
 ✅ Basic knowledge of C programming and cross-compilation  
-
----
 
 ## 🚀 Step-by-Step Implementation
 
@@ -115,5 +111,52 @@ int main() {
     return 0;
 }
 ```
+### Step 2: Cross-Compile the Hello World C Program
+
+Use the RISC-V GCC toolchain to compile the program into a RISC-V ELF executable:
+
+```bash
+riscv32-unknown-elf-gcc -o hello.elf hello.c
+```
+### Step 3: Verify the Compiled ELF Binary
+
+Check the type and architecture of the compiled binary using the `file` command:
+
+```bash
+file hello.elf
+```
+### Step 4: Additional Verification Commands
+
+1. List the compiled binary file with detailed info:
+
+```bash
+ls -la hello.elf
+```
+2. Verify target architecture of the toolchain used
+```bash
+riscv32-unknown-elf-gcc -dumpmachine
+```
+3.Inspect ELF section headers using objdump
+```bash
+riscv32-unknown-elf-objdump -h hello.elf
+```
+### 📊 Expected Result:
+✅The hello.elf file is confirmed as a 32-bit RISC-V executable.
+✅The toolchain target architecture is correctly set as riscv32-unknown-elf.
+✅The ELF sections (.text, .rodata, .data, etc.) are visible and correctly formatted.
+✅The executable is statically linked and supports RVC instructions.
+---
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task1_Output](screenshots/task1_1.png)
+![Task1_Output](screenshots/task1_2.png)
+![Task1_Output](screenshots/task1_3.png)
+---
+
+
+
 
 
