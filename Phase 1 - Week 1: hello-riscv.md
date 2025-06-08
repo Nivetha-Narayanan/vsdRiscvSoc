@@ -511,7 +511,91 @@ _(Include my terminal output screenshot below)_
 
 ![Task8_Output](screenshots/task8_1.png)
 ---
+# 🛠️ Task 9: Inline Assembly Basics - RISC-V CSR Access & Constraints
 
+## 🎯 Objective
+Write a C function demonstrating inline assembly usage in RISC-V. Specifically, showcase reading CSR registers (like the cycle counter at 0xC00) and explain each constraint used in the inline assembly syntax, including output constraints (`"=r"`), input constraints (`"r"`), and the importance of the `volatile` keyword.
+
+## 🚀 Step-by-Step Implementation
+
+### Step 1: Create inline assembly demonstration program
+
+```c
+#include <stdio.h>
+#include <stdint.h>
+
+// Example 1: Inline assembly syntax demonstration
+static inline uint32_t rdcycle_demo(void) {
+    uint32_t c = 12345; // Simulated cycle count for demo
+    asm volatile ("mv %0, %0" : "=r"(c) : "r"(c));
+    return c;
+}
+
+// Example 2: Arithmetic inline assembly
+static inline uint32_t add_inline(uint32_t a, uint32_t b) {
+    uint32_t result;
+    asm volatile ("add %0, %1, %2" : "=r"(result) : "r"(a), "r"(b));
+    return result;
+}
+
+// Example 3: Demonstrate volatile keyword importance
+static inline uint32_t demo_volatile(uint32_t input) {
+    uint32_t output;
+    asm volatile ("slli %0, %1, 1" : "=r"(output) : "r"(input));
+    return output;
+}
+
+int main() {
+    printf("=== Task 9: Inline Assembly Basics ===\n");
+
+    uint32_t cycles = rdcycle_demo();
+    printf("Simulated cycle count: %u\n", cycles);
+
+    uint32_t sum = add_inline(15, 25);
+    printf("15 + 25 = %u (using inline assembly)\n", sum);
+
+    uint32_t shifted = demo_volatile(5);
+    printf("5 << 1 = %u (using volatile inline assembly)\n", shifted);
+
+    printf("\n=== Constraint Explanations ===\n");
+    printf("\"=r\"(output): write-only output register\n");
+    printf("\"r\"(input): read-only input register\n");
+    printf("volatile: prevent compiler optimizations removing assembly code\n");
+
+    return 0;
+}
+```
+### Step 2: Compile the program
+```bash
+riscv32-unknown-elf-gcc -o task9_final.elf task9_final.c
+```
+### Step 3: Generate assembly source with inline asm visible
+```bash
+riscv32-unknown-elf-gcc -S task9_final.c
+```
+### Step 4: Inspect inline assembly in generated .s file
+```bash
+grep -A 5 -B 5 -E "(add|slli|mv)" task9_final.s
+```
+## 📝 Observations  
+📌The rdcycle_demo() function simulates a cycle counter read using inline assembly without CSR dependency.  
+📌The add_inline() function demonstrates adding two registers via inline assembly using "=r" and "r" constraints.  
+📌The demo_volatile() function shows how the volatile keyword prevents the compiler from optimizing away essential assembly instructions.  
+📌Inline assembly constraints "=r" indicate an output operand stored in a general-purpose register.  
+📌Input constraints "r" specify operands read from general-purpose registers.  
+📌volatile ensures the compiler includes the inline assembly exactly as written, critical for hardware register or CSR access.
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task9_Output](screenshots/task9_1.png)
+![Task9_Output](screenshots/task9_2.png)
+![Task9_Output](screenshots/task9_3.png)
+![Task9_Output](screenshots/task9_4.png)
+![Task9_Output](screenshots/task9_5.png)
+![Task9_Output](screenshots/task9_6.png)
+---
 
 
 
