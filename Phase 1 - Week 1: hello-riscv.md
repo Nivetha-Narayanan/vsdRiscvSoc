@@ -46,4 +46,10 @@ sudo tar -xzf riscv-toolchain-rv32imac-x86_64-ubuntu.tar.gz -C /opt/riscv --stri
 ls -la /opt/riscv/
 ls -la /opt/riscv/riscv/
 ```
+### Step 3: Configure PATH Environment Variable
 
+```bash
+echo 'export PATH=/opt/riscv/riscv/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+echo $PATH | grep riscv
+'''
