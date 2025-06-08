@@ -106,7 +106,8 @@ Create a minimal C "Hello World" program and successfully cross-compile it for t
 ```bash
 nano hello.c
 ```
-```c
+### C Program
+```
 #include <stdio.h>
 
 int main() {
@@ -114,7 +115,5 @@ int main() {
     return 0;
 }
 ```
-
-
 
 
