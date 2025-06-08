@@ -1566,7 +1566,215 @@ qemu-system-riscv32 -machine virt -nographic -bios none -kernel printf_test.elf
 _(Include my terminal output screenshot below)_
 
 
-![Task15_Output](screenshots/task15_1.png)
+![Task16_Output](screenshots/task16_1.png)
+---
+## Task 17: RISC-V Endianness & Struct Packing Analysis
+
+### Objective
+
+Verify RISC-V byte ordering (endianness) using C union trick and demonstrate struct packing behavior in bare-metal environment.
+
+### Question Answered
+
+**“Is RV32 little-endian by default? Show me how to verify byte ordering with a union trick in C.”**
+
+## ✅ **Answer:**  
+Yes, **RISC-V RV32** is **little-endian** by default.
+
+### Method
+
+#### Endianness Verification
+
+- Used a `union` of `uint32_t` and `uint8_t[4]`.
+- Stored value `0x01020304` and printed bytes.
+###  nano endianness_test.c code:
+```C
+#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>  // for size_t
+
+// === Union Trick to Test Endianness ===
+typedef union {
+    uint32_t word;
+    uint8_t bytes[4];
+} endian_test_t;
+
+// === Packed Struct ===
+struct packed_struct {
+    uint8_t  byte1;
+    uint32_t word1;
+    uint16_t half1;
+    uint8_t  byte2;
+} __attribute__((packed));
+
+// === Normal Struct ===
+struct normal_struct {
+    uint8_t  byte1;
+    uint32_t word1;
+    uint16_t half1;
+    uint8_t  byte2;
+};
+
+// === Bit Field Struct ===
+struct bit_field_test {
+    uint32_t field1 : 4;    // 4 bits
+    uint32_t field2 : 8;    // 8 bits
+    uint32_t field3 : 12;   // 12 bits
+    uint32_t field4 : 8;    // 8 bits
+};
+
+// === Function to Print Binary ===
+void print_binary(uint32_t value) {
+    printf("Binary: ");
+    for (int i = 31; i >= 0; i--) {
+        printf("%c", (value & (1U << i)) ? '1' : '0');
+        if (i % 8 == 0 && i > 0) printf(" ");
+    }
+    printf("\n");
+}
+
+int main(void) {
+    printf("RISC-V Endianness & Struct Packing Analysis\n");
+    printf("==========================================\n\n");
+
+    // === ENDIANNESS TEST ===
+    printf("=== RISC-V Endianness Test ===\n");
+
+    endian_test_t test;
+    test.word = 0x01020304;
+
+    printf("Stored value: 0x%08X\n", test.word);
+    print_binary(test.word);
+
+    printf("Byte-by-byte examination:\n");
+    printf("bytes[0] = 0x%02X (LSB)\n", test.bytes[0]);
+    printf("bytes[1] = 0x%02X\n", test.bytes[1]);
+    printf("bytes[2] = 0x%02X\n", test.bytes[2]);
+    printf("bytes[3] = 0x%02X (MSB)\n", test.bytes[3]);
+
+    if (test.bytes[0] == 0x04) {
+        printf("Result: LITTLE ENDIAN (LSB first)\n");
+        printf("Memory layout: [04][03][02][01]\n");
+    } else if (test.bytes[0] == 0x01) {
+        printf("Result: BIG ENDIAN (MSB first)\n");
+        printf("Memory layout: [01][02][03][04]\n");
+    } else {
+        printf("Result: UNKNOWN ENDIANNESS\n");
+    }
+    printf("\n");
+
+    // === STRUCT PACKING TEST ===
+    printf("=== Struct Packing Test ===\n");
+
+    struct normal_struct normal = {0xAA, 0x12345678, 0xBCDE, 0xFF};
+    struct packed_struct packed = {0xAA, 0x12345678, 0xBCDE, 0xFF};
+
+    printf("Normal struct size: %zu bytes\n", sizeof(struct normal_struct));
+    printf("Packed struct size: %zu bytes\n", sizeof(struct packed_struct));
+
+    // Print normal struct memory layout
+    printf("\nNormal struct memory layout:\n");
+    uint8_t *normal_ptr = (uint8_t*)&normal;
+    for (size_t i = 0; i < sizeof(normal); i++) {
+        printf("Offset %zu: 0x%02X\n", i, normal_ptr[i]);
+    }
+
+    // Print packed struct memory layout
+    printf("\nPacked struct memory layout:\n");
+    uint8_t *packed_ptr = (uint8_t*)&packed;
+    for (size_t i = 0; i < sizeof(packed); i++) {
+        printf("Offset %zu: 0x%02X\n", i, packed_ptr[i]);
+    }
+    printf("\n");
+
+    // === BIT FIELD TEST ===
+    printf("=== Bit Field Test ===\n");
+
+    struct bit_field_test bf;
+    bf.field1 = 0xF;      // 1111
+    bf.field2 = 0xAB;     // 10101011
+    bf.field3 = 0x123;    // 000100100011
+    bf.field4 = 0xCD;     // 11001101
+
+    printf("Bit field struct size: %zu bytes\n", sizeof(bf));
+    printf("field1 (4 bits) = 0x%X\n", bf.field1);
+    printf("field2 (8 bits) = 0x%02X\n", bf.field2);
+    printf("field3 (12 bits) = 0x%03X\n", bf.field3);
+    printf("field4 (8 bits) = 0x%02X\n", bf.field4);
+
+    printf("Raw memory content of bit field struct:\n");
+    uint8_t *bf_ptr = (uint8_t*)&bf;
+    for (size_t i = 0; i < sizeof(bf); i++) {
+        printf("Byte %zu: 0x%02X\n", i, bf_ptr[i]);
+    }
+    printf("\n");
+
+    // === ALIGNMENT TEST ===
+    printf("=== Memory Alignment Test ===\n");
+
+    char buffer[16];
+
+    uint8_t  *ptr8  = (uint8_t*)(buffer + 1);
+    uint16_t *ptr16 = (uint16_t*)(buffer + 2);
+    uint32_t *ptr32 = (uint32_t*)(buffer + 4);
+
+    printf("Buffer base address: %p\n", (void*)buffer);
+    printf("uint8_t  pointer: %p (offset: %ld)\n", (void*)ptr8, (char*)ptr8 - buffer);
+    printf("uint16_t pointer: %p (offset: %ld)\n", (void*)ptr16, (char*)ptr16 - buffer);
+    printf("uint32_t pointer: %p (offset: %ld)\n", (void*)ptr32, (char*)ptr32 - buffer);
+
+    printf("uint8_t  alignment: %s\n", ((uintptr_t)ptr8 % 1 == 0) ? "OK" : "BAD");
+    printf("uint16_t alignment: %s\n", ((uintptr_t)ptr16 % 2 == 0) ? "OK" : "BAD");
+    printf("uint32_t alignment: %s\n", ((uintptr_t)ptr32 % 4 == 0) ? "OK" : "BAD");
+    printf("\n");
+
+    printf("Analysis complete!\n");
+    printf("Program will now halt...\n");
+
+    // Small delay
+    for (volatile int i = 0; i < 1000000; i++) {
+        // No-op
+    }
+
+    while (1) {
+        asm volatile("wfi");
+    }
+
+    return 0;
+}
+```
+### Struct Packing  
+  -Created normal struct and packed struct.  
+  -Compared memory layouts and struct sizes.
+
+### Bit Field Test
+  -Defined struct with bit fields.  
+  -Printed field values and raw memory.
+
+### Alignment Test  
+  -Verified alignment of uint8_t, uint16_t, uint32_t in memory buffer.
+
+### Commands Used
+```bash
+# Compile
+riscv32-unknown-elf-gcc -march=rv32imac_zicsr -mabi=ilp32 \
+    -nostartfiles -T intr_link.ld \
+    -o endianness.elf startup_intr.S endianness_test.c syscalls.c -lc
+
+# Run on QEMU
+qemu-system-riscv32 -machine virt -nographic -bios none -kernel endianness.elf
+```
+## Conclusion  
+✅ Endianness: RISC-V RV32 is Little Endian  
+✅ Struct Packing: Packed struct removes padding and reduces size  
+✅ Bit Field: Demonstrated bit field layout in memory  
+✅ Alignment: Correct alignment of data types verified  
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task17_Output](screenshots/task17_1.png)
 ---
 
 
