@@ -455,8 +455,62 @@ _(Include my terminal output screenshot below)_
 
 ![Task7_Output](screenshots/task7_1.png)
 ---
+# 🏗️Task 8: Exploring GCC Optimization
+
+## 🎯 Objective
+Compile the same RISC-V C program with different optimization levels (`-O0` vs `-O2`) and analyze the differences in the generated assembly code.
+
+## 📋 Prerequisites  
+✅ Completed previous tasks compiling and disassembling the program  
+✅ Basic understanding of GCC compiler optimization flags
+
+## 🚀 Step-by-Step Implementation
+
+### Step 1: Compile with no optimization (-O0) 
+```bash
+riscv32-unknown-elf-gcc -S -O0 hello.c -o hello_O0.s
+```
+✅ This command generates an unoptimized assembly source file hello_O0.s.
+
+## Step 2: Compile with optimization level (-O2)
+```bash 
+riscv32-unknown-elf-gcc -S -O2 hello.c -o hello_O2.s
+```
+✅ This command generates an optimized assembly source file hello_O2.s.
+
+### Step 3: Compare the outputs
+
+```bash
+diff hello_O0.s hello_O2.s
+```
+✅ The diff command highlights differences between the unoptimized and optimized assembly.
+
+### 📝 Understanding the Output
+📝 **Observations from Comparing -O0 vs -O2**
+
+| Observation | Explanation |
+|-------------|-------------|
+| `.section .rodata.str1.4` used instead of `.rodata` | Optimizer places string literals in a more compact/optimized section |
+| `.section .text.startup` instead of `.text` | GCC separates startup code for better optimization and faster startup |
+| `lui a0,%hi(.LC0)` + `addi a0,a0,%lo(.LC0)` | Optimized address loading instead of using intermediate registers |
+| Stack frame creation (`sw s0,8(sp)` and `addi s0,sp,16`) removed | Optimizer detected no need for saving registers or stack frame setup |
+| Stack frame restoration (`lw s0,8(sp)`) removed | No stack frame needed, so restoration code is eliminated |
+| `li a0,0` used directly | Simplified constant loading compared to previous version with `li a5,0` + `mv a0,a5` |
+| Unused instructions removed | Dead-code elimination by the optimizer |
 
 
+### Key Optimization Techniques Observed:  
+📌Dead-code elimination (removed unnecessary stack operations)  
+📌Better register allocation (direct use of a0 instead of temporary a5)  
+📌Inlining and address calculation improvements  
+
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task8_Output](screenshots/task8_1.png)
+---
 
 
 
