@@ -62,5 +62,22 @@ riscv32-unknown-elf-gcc -dumpmachine
 ls -la /opt/riscv/riscv/bin/ | grep riscv32
 ```
 ---
+---
+
+## 📊 Expected Results
+
+- **GCC version:** riscv32-unknown-elf-gcc (g04696df096) 14.2.0  
+- **Objdump version:** GNU objdump (GNU Binutils) 2.43.1  
+- **Target architecture:** riscv32-unknown-elf  
+- **Binaries verified:** riscv32-unknown-elf-gcc, riscv32-unknown-elf-objdump, and other essential tools inside `/opt/riscv/riscv/bin/`
+
+---
+
+## 📸 Implementation Output
+
+_(Include your terminal output screenshot below)_
+
+![Step 4 Output](images/step4_output.png)
+
 
 
