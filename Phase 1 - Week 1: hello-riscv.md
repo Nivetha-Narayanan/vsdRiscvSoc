@@ -151,9 +151,8 @@ riscv32-unknown-elf-objdump -h hello.elf
 _(Include my terminal output screenshot below)_
 
 
-![Task1_Output](screenshots/task1_1.png)
-![Task1_Output](screenshots/task1_2.png)
-![Task1_Output](screenshots/task1_3.png)
+![Task2_Output](screenshots/task2_1.png)
+![Task2_Output](screenshots/task2_2.png)
 ---
 
 
