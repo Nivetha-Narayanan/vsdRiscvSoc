@@ -1445,6 +1445,131 @@ _(Include my terminal output screenshot below)_
 
 ![Task15_Output](screenshots/task15_1.png)
 ---
+# Task 16: Using Newlib printf Without an OS
+## Objective
+  How to retarget the _write syscall so that printf sends bytes to my memory-mapped UART.
+
+## Concept
+  -The Newlib C library uses syscalls like _write, _sbrk, _close, etc.  
+  -In a bare-metal system (no OS), we must provide these ourselves.
+  -We implement _write(int fd, char *buf, int len) to send characters to UART.
+  -This allows using printf() even without an OS.
+
+## Method  
+ -Implement _write syscall in syscalls.c.
+ -Link with Newlib (-lc) and without OS (-nostartfiles).
+ -Provide a startup.S (or startup_intr.S) for the entry point.  
+ -Map UART TX register to UART_BASE and send each byte from buf.
+
+### main.c Code
+```
+#include <stdio.h>
+
+int main(void) {
+    printf("== Newlib printf Test ==\n");
+
+    for (int i = 0; i < 5; i++) {
+        printf("Count: %d\n", i);
+    }
+
+    printf("== Done ==\n");
+
+    while (1);
+}
+```
+### syscalls.c
+```c
+#include <stddef.h>
+#include <stdint.h>
+
+#define UART_BASE 0x10000000
+
+int _write(int fd, const char *buf, int len) {
+    volatile char *uart = (volatile char *)UART_BASE;
+    for (int i = 0; i < len; i++) {
+        *uart = buf[i];
+    }
+    return len;
+}
+
+// Optional stubs (avoid linking errors)
+
+void *_sbrk(ptrdiff_t incr) { return (void *)-1; }
+int _close(int fd) { return -1; }
+int _fstat(int fd, void *st) { return -1; }
+int _isatty(int fd) { return 1; }
+int _lseek(int fd, int ptr, int dir) { return -1; }
+int _read(int fd, char *buf, int len) { return -1; }
+```
+### startup_intr.S
+```
+.section .text
+.global _start
+_start:
+    la sp, _stack_top      // Initialize stack
+    call main              // Call main()
+
+1:  wfi                    // Wait for interrupt or halt
+    j 1b
+```
+### intr_link.ld
+```ld
+OUTPUT_ARCH(riscv)
+ENTRY(_start)
+
+MEMORY {
+  RAM (rwx) : ORIGIN = 0x80000000, LENGTH = 16M
+}
+
+SECTIONS {
+  . = 0x80000000;
+
+  .text : {
+    *(.text*)
+  }
+
+  .rodata : {
+    *(.rodata*)
+  }
+
+  .data : {
+    *(.data*)
+  }
+
+  .bss : {
+    *(.bss*)
+    *(COMMON)
+  }
+
+  . = ALIGN(4);
+  PROVIDE(_stack_top = ORIGIN(RAM) + LENGTH(RAM));
+}
+```
+### Commands Used
+```bash
+nano main.c
+nano syscalls.c
+nano startup_intr.S
+nano intr_link.ld
+
+riscv32-unknown-elf-gcc -march=rv32imac_zicsr -mabi=ilp32 -nostartfiles -T intr_link.ld -o printf_test.elf startup_intr.S main.c syscalls.c -lc
+
+qemu-system-riscv32 -machine virt -nographic -bios none -kernel printf_test.elf
+```
+## Observations
+📌printf() now works without an OS → because _write() syscall is provided.  
+📌UART output is visible on terminal.  
+📌Newlib internally calls _write() → which sends bytes to UART.  
+📌This is a key method to use printf() in bare-metal embedded development.  
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task15_Output](screenshots/task15_1.png)
+---
+
+
 
 
 
