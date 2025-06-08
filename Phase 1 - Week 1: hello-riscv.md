@@ -213,6 +213,67 @@ _(Include my terminal output screenshot below)_
 ![Task3_Output](screenshots/task3_1.png)
 ![Task3_Output](screenshots/task3_2.png)
 ---
+# 🏗️ Task 4: Hex Dump & Disassembly
+## 🎯 Objective
+
+✅ Disassemble the ELF binary using objdump
+✅ Convert the ELF binary into a raw Intel HEX format
+✅ Understand the meaning of each column in the disassembly output
+
+## 🚀 Step-by-Step Implementation
+### Step 1: Generate Disassembly Dump
+```bash
+riscv32-unknown-elf-objdump -d hello.elf > hello.dump
+```
+✅ This command generates hello.dump, which contains the full disassembly of hello.elf.
+
+### Step 2: Convert ELF to Raw Intel HEX
+```bash
+riscv32-unknown-elf-objcopy -O ihex hello.elf hello.hex
+```
+✅ This command converts hello.elf into a raw Intel HEX format (hello.hex) which can be used for loading into flash memory of embedded boards.
+
+### Step 3: Verify Files
+``` bash
+ls -la hello.dump hello.hex
+```
+✅ output:
+```
+-rw-r--r-- 1 nivetha nivetha  2345 Jun  8 08:15 hello.dump
+-rw-r--r-- 1 nivetha nivetha   890 Jun  8 08:15 hello.hex
+```
+#### 📖 Understanding the Disassembly Output
+###### Example part of hello.dump:
+```
+100b4:   1141                addi    sp,sp,-16
+100b6:   4581                li      a1,0
+100b8:   c422                sw      s0,8(sp)
+```
+Column	Meaning
+100b4:	Memory Address of instruction
+1141	Machine code / raw instruction encoding
+addi sp,sp,-16	Instruction mnemonic and operands
+
+✅  breakdown:
+
+100b4: → The address where this instruction will execute in memory.
+
+1141 → Hex representation of the instruction (opcode and operands encoded).
+
+addi sp,sp,-16 → Human-readable instruction:
+
+addi = Add Immediate
+
+sp,sp,-16 → Subtract 16 from the stack pointer → creates space on stack.
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task4_Output](screenshots/task4_1.png)
+![Task4_Output](screenshots/task4_2.png)
+---
+
 
 
 
