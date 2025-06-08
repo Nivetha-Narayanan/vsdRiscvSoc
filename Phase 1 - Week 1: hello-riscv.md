@@ -597,6 +597,128 @@ _(Include my terminal output screenshot below)_
 ![Task9_Output](screenshots/task9_6.png)
 ---
 
+# 💾 Task 10: Memory-Mapped I/O Demo - GPIO Control with Volatile
+
+## 🎯 Objective  
+Demonstrate bare-metal C programming for memory-mapped I/O by creating a GPIO register toggle function at address `0x10012000`.
+Show how the `volatile` keyword prevents compiler optimization from eliminating essential hardware register accesses, and explain alignment requirements for memory-mapped operations.
+
+## 🚀 Step-by-Step Implementation
+
+### Step 1: Create Memory-Mapped I/O Program (with `volatile`)
+
+```c
+// task10_gpio.c
+#include <stdint.h>
+
+#define GPIO_ADDR 0x10012000
+
+void toggle_gpio(void) {
+    volatile uint32_t *gpio = (volatile uint32_t *)GPIO_ADDR;
+    
+    *gpio = 0x1; // Set pin high
+    
+    uint32_t current_state = *gpio; // Read state
+    *gpio = ~current_state; // Toggle
+    
+    *gpio |= (1 << 0);   // Set bit 0
+    *gpio &= ~(1 << 1);  // Clear bit 1
+}
+
+void gpio_operations(void) {
+    volatile uint32_t *gpio = (volatile uint32_t *)GPIO_ADDR;
+    
+    *gpio = 0x0;
+    *gpio = 0x1;
+    *gpio = 0xFFFFFFFF;
+    *gpio = 0x0;
+}
+
+int main() {
+    toggle_gpio();
+    gpio_operations();
+
+    while(1) {
+        static volatile int counter = 0;
+        counter++;
+        if (counter > 1000000) break;
+    }
+
+    return 0;
+}
+```
+### Step 2: Create Comparison Program (without volatile)
+```c
+// task10_no_volatile.c
+#include <stdint.h>
+#define GPIO_ADDR 0x10012000
+
+void toggle_gpio_no_volatile(void) {
+    uint32_t *gpio = (uint32_t *)GPIO_ADDR; // No volatile
+    
+    *gpio = 0x1;
+    *gpio = 0x0;
+    *gpio = 0x1; // May be optimized away
+}
+
+int main() {
+    toggle_gpio_no_volatile();
+    return 0;
+}
+```
+### WSL Commands Used
+```bash
+nano task10_gpio.c
+nano task10_no_volatile.c
+
+riscv32-unknown-elf-gcc -S -O2 task10_gpio.c -o task10_with_volatile.s
+riscv32-unknown-elf-gcc -S -O2 task10_no_volatile.c -o task10_no_volatile.s
+
+riscv32-unknown-elf-gcc -o task10_gpio.elf task10_gpio.c
+
+grep -n "0x10012000\|sw\|lw" task10_with_volatile.s | head -10
+grep -n "0x10012000\|sw\|lw" task10_no_volatile.s | head -10
+
+grep -c "sw\|lw" task10_with_volatile.s
+grep -c "sw\|lw" task10_no_volatile.s
+```
+## 📝 Observations
+### ✅ With volatile (task10_with_volatile.s)
+```bash
+grep -c "sw\|lw" task10_with_volatile.s
+```
+Result: 20 memory operations (sw/lw) found.
+```
+13:     sw      a4,0(a5)
+14:     lw      a4,0(a5)
+16:     sw      a4,0(a5)
+17:     lw      a4,0(a5)
+19:     sw      a4,0(a5)
+...
+```
+✅ The compiler preserved all intended memory operations, respecting volatile.
+
+### 🚫 Without volatile (task10_no_volatile.s)
+```bash
+grep -c "sw\|lw" task10_no_volatile.s
+```
+Result: 2 memory operations (sw/lw) found.
+```
+13:     sw      a4,0(a5)
+23:     sw      a4,0(a5)
+```
+🚫 The compiler optimized away most memory operations since volatile was not used.
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task10_Output](screenshots/task10_1.png)
+---
+
+
+
+
 
 
 
