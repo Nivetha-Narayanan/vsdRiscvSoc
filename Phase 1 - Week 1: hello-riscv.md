@@ -716,6 +716,94 @@ _(Include my terminal output screenshot below)_
 ![Task10_Output](screenshots/task10_1.png)
 ---
 
+# 🗂️ Task 11: Linker Script 101
+
+## 🎯 Objective
+
+Provide a **minimal linker script** that:
+
+- Places `.text` at `0x00000000` (Flash)
+- Places `.data` at `0x10000000` (SRAM)
+
+for **RV32IMC** architecture.
+
+Also explain the difference between Flash and SRAM addressing.
+
+## 🚀 Step-by-Step Implementation
+
+### Step 1️⃣ Create the Linker Script
+
+Created a minimal linker script `linker.ld`:
+
+```ld
+SECTIONS
+{
+    .text 0x00000000 : { *(.text*) }
+    .data 0x10000000 : { *(.data*) *(.sdata*) }
+}
+```
+#### Explanation:
+`.text ` → code section (Flash)  
+`.data ` → initialized data section (SRAM or RAM region)  
+`*(.sdata*)` → included to ensure small initialized data is also mapped
+
+### Step 2️⃣ Create Example C Program
+ #### Creat task11_example.c:
+ ```c
+int data_var = 42;
+
+int main() {
+    volatile int dummy = data_var;
+    dummy++;
+    return 0;
+}
+```
+### Step 3️⃣ Compile Using Custom Linker Script
+```bash
+riscv32-unknown-elf-gcc -nostartfiles -T linker.ld -o task11.elf task11_example.c
+```
+⚠️ Note: Warning cannot find entry symbol _start is expected since no startup file was provided. This is OK for this demo.
+
+### Step 4️⃣ Inspect ELF Sections
+```bash
+riscv32-unknown-elf-objdump -h task11.elf
+```
+#### Observed output:
+```
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000026  00000000  00000000  00001000  2**1
+  1 .sdata        00000004  00000028  00000028  00001028  2**2
+  2 .comment      ...
+  3 .riscv.attributes ...
+```
+✅ .text successfully placed at 0x00000000
+✅ .data section appeared as .sdata at 0x10000000 aligned to 0x28 address (auto adjusted)
+
+## 🔍 Flash vs SRAM Addressing
+
+| Flash (ROM)                | SRAM (RAM)                 |
+|---------------------------|----------------------------|
+| Non-volatile storage      | Volatile storage           |
+| Stores `.text` (code)     | Stores `.data`, `.bss`, stack |
+| Typically mapped at `0x00000000` | Typically mapped at `0x10000000` |
+| Executable memory         | Read/Write memory          |
+
+**Explanation:**
+
+- **Flash** is non-volatile memory used to store program code (`.text` section). It retains data even when power is off.
+- **SRAM** is volatile memory used to store initialized data (`.data` section), uninitialized data (`.bss`), and stack, which require read/write access during program execution.
+- The addresses differ because Flash and SRAM are physically separate memory regions mapped at different base addresses in the system's memory map.
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task11_Output](screenshots/task11_1.png)
+---
+
+
+
+
 
 
 
