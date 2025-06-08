@@ -269,6 +269,69 @@ _(Include my terminal output screenshot below)_
 ![Task4_Output](screenshots/task4_1.png)
 ![Task4_Output](screenshots/task4_2.png)
 ---
+# 🏗️ Task 5: ABI & Register Cheat-Sheet
+
+## 🎯 Objective  
+List all 32 RV32 integer registers with their ABI names and typical calling-convention roles.
+
+---
+
+## 📋 ABI Register Table
+
+| Register | ABI Name | Typical Role / Calling Convention                |
+|----------|----------|-------------------------------------------------|
+| x0       | zero     | Hardwired zero (always 0)                        |
+| x1       | ra       | Return address (used to store return PC)        |
+| x2       | sp       | Stack pointer                                   |
+| x3       | gp       | Global pointer                                 |
+| x4       | tp       | Thread pointer                                |
+| x5       | t0       | Temporary register (caller-saved)               |
+| x6       | t1       | Temporary register (caller-saved)               |
+| x7       | t2       | Temporary register (caller-saved)               |
+| x8       | s0/fp    | Saved register / frame pointer (callee-saved)  |
+| x9       | s1       | Saved register (callee-saved)                   |
+| x10      | a0       | Function argument 0 / return value 0            |
+| x11      | a1       | Function argument 1 / return value 1            |
+| x12      | a2       | Function argument 2                             |
+| x13      | a3       | Function argument 3                             |
+| x14      | a4       | Function argument 4                             |
+| x15      | a5       | Function argument 5                             |
+| x16      | a6       | Function argument 6                             |
+| x17      | a7       | Function argument 7                             |
+| x18      | s2       | Saved register (callee-saved)                   |
+| x19      | s3       | Saved register (callee-saved)                   |
+| x20      | s4       | Saved register (callee-saved)                   |
+| x21      | s5       | Saved register (callee-saved)                   |
+| x22      | s6       | Saved register (callee-saved)                   |
+| x23      | s7       | Saved register (callee-saved)                   |
+| x24      | s8       | Saved register (callee-saved)                   |
+| x25      | s9       | Saved register (callee-saved)                   |
+| x26      | s10      | Saved register (callee-saved)                   |
+| x27      | s11      | Saved register (callee-saved)                   |
+| x28      | t3       | Temporary register (caller-saved)               |
+| x29      | t4       | Temporary register (caller-saved)               |
+| x30      | t5       | Temporary register (caller-saved)               |
+| x31      | t6       | Temporary register (caller-saved)               |
+
+---
+
+## 📝 Calling Convention Summary
+
+- **Argument/Return registers:** `a0`–`a7` (x10–x17) — Used to pass function arguments and return values.  
+- **Callee-saved registers:** `s0`–`s11` (x8, x9, x18–x27) — Preserved by the called function across calls.  
+- **Caller-saved registers:** `t0`–`t6` (x5–x7, x28–x31) — May be overwritten by the called function; caller must save if needed.  
+- **Special purpose registers:**  
+  - `zero` (x0): Constant zero value  
+  - `ra` (x1): Return address  
+  - `sp` (x2): Stack pointer  
+  - `gp` (x3): Global pointer  
+  - `tp` (x4): Thread pointer  
+  - `s0` (x8) also serves as frame pointer (`fp`)  
+
+---
+
+✅ **Task 5 complete:** ABI register list and calling conventions summarized.
+
 
 
 
