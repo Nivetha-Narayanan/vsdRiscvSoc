@@ -254,17 +254,13 @@ Column	Meaning
 📌 1141	Machine code / raw instruction encoding  
 📌 addi sp,sp,-16	Instruction mnemonic and operands
 
-✅  breakdown:
+✅  breakdown:  
+📌 100b4: → The address where this instruction will execute in memory.  
+📌1141 → Hex representation of the instruction (opcode and operands encoded).  
+📌addi sp,sp,-16 → Human-readable instruction:  
+📌addi = Add Immediate  
+📌sp,sp,-16 → Subtract 16 from the stack pointer → creates space on stack.  
 
-100b4: → The address where this instruction will execute in memory.
-
-1141 → Hex representation of the instruction (opcode and operands encoded).
-
-addi sp,sp,-16 → Human-readable instruction:
-
-addi = Add Immediate
-
-sp,sp,-16 → Subtract 16 from the stack pointer → creates space on stack.
 ## 📸 Implementation Output
 
 _(Include my terminal output screenshot below)_
