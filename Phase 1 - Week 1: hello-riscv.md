@@ -383,6 +383,78 @@ _(Include my terminal output screenshot below)_
 ![Task6_Output](screenshots/task6_1.png)
 ![Task6_Output](screenshots/task6_2.png)
 ---
+# 🖥️ Task 7: Running Under an Emulator - RISC-V QEMU Emulation  
+## 🎯 Objective
+
+Run the bare-metal RISC-V ELF binary under an emulator (QEMU or Spike) to simulate hardware execution and demonstrate UART console output, verifying that cross-compiled programs can execute properly in a virtual RISC-V environment.[1][4]
+
+## 🚀 Step-by-Step Implementation (Working Commands)
+
+### Step 1: Verify Emulator Environment
+
+Check available RISC-V emulators in your WSL system.
+
+Check QEMU RISC-V availability
+```bash
+which qemu-system-riscv32
+qemu-system-riscv32 --version
+```
+Check Spike emulator availability
+```bash
+which spike
+spike --help
+```
+Verify your target binary
+```bash
+ls -la hello.elf
+file hello.elf
+```
+
+### Step 2: Install Required Emulation Components
+
+Install QEMU and necessary firmware components for RISC-V emulation.
+
+Update package repositories
+```bash
+sudo apt update
+```
+Install QEMU with RISC-V support
+```bash
+sudo apt install qemu-system-misc
+```
+Install OpenSBI firmware (If not available in  system)
+```bash
+sudo apt install opensbi
+```
+
+### Step 3: Download Required OpenSBI Firmware
+
+Download the specific firmware file that QEMU expects for RISC-V 32-bit emulation.
+
+Download OpenSBI firmware for QEMU
+```bash
+curl -LO https://github.com/qemu/qemu/raw/v8.0.4/pc-bios/opensbi-riscv32-generic-fw_dynamic.bin
+```
+Verify firmware download
+```bash
+ls -la opensbi-riscv32-generic-fw_dynamic.bin
+```
+
+### Step 4: Run ELF Binary with QEMU Emulator (Primary Method)
+
+Execute your RISC-V binary using QEMU with virtual RISC-V hardware.
+
+Run hello.elf with QEMU using virtual machine
+```bash
+qemu-system-riscv32 -nographic -machine virt -kernel hello.elf
+```
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task7_Output](screenshots/task7_1.png)
+---
 
 
 
