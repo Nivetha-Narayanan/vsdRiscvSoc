@@ -37,7 +37,6 @@ sudo mkdir -p /opt/riscv
 ls -la riscv-toolchain-rv32imac-x86_64-ubuntu.tar.gz
 ```
 
----
 
 ### Step 2: Extract the RISC-V Toolchain
 
@@ -53,7 +52,7 @@ echo 'export PATH=/opt/riscv/riscv/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 echo $PATH | grep riscv
 ```
----
+
 ### Step 4: Verify Toolchain Installation
 
 ```bash
@@ -61,5 +60,7 @@ riscv32-unknown-elf-gcc --version
 riscv32-unknown-elf-objdump --version
 riscv32-unknown-elf-gcc -dumpmachine
 ls -la /opt/riscv/riscv/bin/ | grep riscv32
+```
+---
 
 
