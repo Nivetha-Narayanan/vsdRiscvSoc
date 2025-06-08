@@ -91,8 +91,11 @@ Create a minimal C "Hello World" program and successfully cross-compile it for t
 ## 📋 Prerequisites
 
 ✅ RISC-V toolchain installed and configured (Task 1 completed)  
+
 ✅ PATH environment variable set to `/opt/riscv/riscv/bin`  
+
 ✅ Verified `riscv32-unknown-elf-gcc` functionality  
+
 ✅ Basic knowledge of C programming and cross-compilation  
 
 ## 🚀 Step-by-Step Implementation
@@ -145,14 +148,14 @@ riscv32-unknown-elf-objdump -h hello.elf
 ✅The toolchain target architecture is correctly set as riscv32-unknown-elf.
 ✅The ELF sections (.text, .rodata, .data, etc.) are visible and correctly formatted.
 ✅The executable is statically linked and supports RVC instructions.
----
+
 ## 📸 Implementation Output
 
 _(Include my terminal output screenshot below)_
 
 
-![Task2_Output](screenshots/task2_1.png)
-![Task2_Output](screenshots/task2_2.png)
+![Task2_Output](screenshots/Task2_1.png)
+![Task2_Output](screenshots/Task2_2.png)
 ---
 
 
