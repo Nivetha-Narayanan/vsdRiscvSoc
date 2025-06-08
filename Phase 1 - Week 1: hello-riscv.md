@@ -157,6 +157,65 @@ _(Include my terminal output screenshot below)_
 ![Task2_Output](screenshots/Task2_1.png)
 ![Task2_Output](screenshots/Task2_2.png)
 ---
+# 🏗️ Task 3: From C to Assembly
+## 🎯 Objective
+Generate the .s file (assembly output) from the C source code and analyze the function prologue and epilogue in the main function to understand how the compiler sets up and tears down a stack frame in RISC-V.
+
+## 📋 Prerequisites
+✅ RISC-V toolchain installed and configured
+✅ PATH environment variable set
+✅ Completed Task 2 (have a working hello.c file)
+
+## 🚀 Step-by-Step Implementation
+### Step 1: Generate the Assembly .s file
+```bash
+riscv32-unknown-elf-gcc -S -O0 hello.c
+```
+✅ This command generates the file hello.s in the current directory.
+### Step 2: Verify the Generated Assembly File
+```bash
+ls -la hello.s
+cat hello.s
+nl hello.s
+```
+✅ The hello.s file contains human-readable RISC-V assembly code.
+✅The nl hello.s will print the hello.s file with line numbers
+### 📝 Explanation of Prologue and Epilogue
+ #### Function Prologue (at the start of main):
+```
+addi    sp,sp,-16      # Adjust stack pointer to allocate stack space
+sw      ra,12(sp)      # Save return address
+sw      s0,8(sp)       # Save frame pointer (s0)
+addi    s0,sp,16       # Set up new frame pointer
+```
+##### Purpose:
+👉 Allocates stack space
+👉 Saves the return address and previous frame pointer
+👉 Sets up new frame pointer
+
+#### Function Epilogue (at the end of main):
+```
+lw      ra,12(sp)      # Restore return address
+lw      s0,8(sp)       # Restore previous frame pointer
+addi    sp,sp,16       # Deallocate stack space
+ret                    # Return to caller
+```
+##### Purpose:
+👉 Restores saved registers
+👉 Cleans up stack frame
+👉 Returns to caller (ret)
+
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task3_Output](screenshots/task3_1.png)
+![Task3_Output](screenshots/task3_2.png)
+---
+
+
+
 
 
 
