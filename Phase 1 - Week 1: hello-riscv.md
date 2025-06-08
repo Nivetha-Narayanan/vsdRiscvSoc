@@ -77,7 +77,7 @@ ls -la /opt/riscv/riscv/bin/ | grep riscv32
 
 _(Include my terminal output screenshot below)_
 
-![Step 4 Output](images/step4_output.png)
+![Task1_Output](screenshots/task1_1.png)
 
 
 
