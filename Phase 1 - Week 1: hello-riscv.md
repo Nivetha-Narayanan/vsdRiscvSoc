@@ -1278,6 +1278,174 @@ _(Include my terminal output screenshot below)_
 
 ![Task14_Output](screenshots/task14_1.png)
 ---
+# Task 15: Atomic Test Program
+## Objective
+Provide a two-thread mutex example (pseudo-threads in main) using lr.w / sc.w on RV32.
+
+## What is a Spinlock?
+  -A spinlock is a simple locking mechanism used to enforce mutual exclusion.  
+  -It allows only one thread to enter the critical section at a time.  
+  -If another thread tries to acquire the lock while it is held, it repeatedly spins (busy-waits) until the lock becomes available.
+
+## How Spinlock is Implemented on RV32
+### Key instructions used:
+ ` lr.w (Load Reserved)`
+  Reads a word from memory and marks it as reserved for atomic operation.
+`sc.w (Store Conditional)`
+Attempts to store a word to the reserved address. Succeeds if no other thread modified the memory since lr.w. Returns 0 if successful, non-zero if failed.
+
+### Purpose:
+ -Used to build atomic compare-and-swap (CAS) and spinlocks.  
+ -Allows creating lock-free data structures and synchronization primitives.  
+ -Very important in multi-threaded systems and OS kernels.
+
+### Example Mutex Code Using lr.w/sc.w
+#### C Code (atomic_mutex_test.c)
+```C
+#include <stdint.h>
+
+#define UART_BASE 0x10000000
+
+void uart_puts(const char *s) {
+    volatile char *uart = (volatile char *)UART_BASE;
+    while (*s) {
+        *uart = *s++;
+    }
+}
+
+volatile uint32_t lock = 0;  // Spinlock variable: 0 = unlocked, 1 = locked
+
+void lock_acquire(volatile uint32_t *lock) {
+    uint32_t tmp;
+    do {
+        asm volatile (
+            "lr.w %[tmp], (%[lock])\n"
+            "bnez %[tmp], 1f\n"    // If lock != 0, skip (locked)
+            "li %[tmp], 1\n"
+            "sc.w %[tmp], %[tmp], (%[lock])\n"  // Try to store 1
+            "1:\n"
+            : [tmp] "=&r"(tmp)
+            : [lock] "r"(lock)
+            : "memory"
+        );
+    } while (tmp != 0);  // If store failed, retry
+}
+
+void lock_release(volatile uint32_t *lock) {
+    asm volatile ("sw zero, 0(%0)" :: "r"(lock) : "memory");
+}
+
+// Simulated "thread 1"
+void thread1(void) {
+    uart_puts("Thread 1: Trying to acquire lock...\n");
+    lock_acquire(&lock);
+    uart_puts("Thread 1: Lock acquired!\n");
+
+    // Simulate some "work"
+    for (volatile int i = 0; i < 100000; i++);
+
+    uart_puts("Thread 1: Releasing lock.\n");
+    lock_release(&lock);
+}
+
+// Simulated "thread 2"
+void thread2(void) {
+    uart_puts("Thread 2: Trying to acquire lock...\n");
+    lock_acquire(&lock);
+    uart_puts("Thread 2: Lock acquired!\n");
+
+    // Simulate some "work"
+    for (volatile int i = 0; i < 100000; i++);
+
+    uart_puts("Thread 2: Releasing lock.\n");
+    lock_release(&lock);
+}
+
+void main(void) {
+    uart_puts("== Atomic Mutex Test Example ==\n");
+
+    thread1();
+    thread2();
+
+    uart_puts("== Test Complete ==\n");
+
+    while (1) {
+        asm volatile("wfi");
+    }
+}
+```
+### Linker Script (intr_link.ld)
+```ld
+OUTPUT_ARCH(riscv)
+ENTRY(_start)
+
+MEMORY {
+  RAM (rwx) : ORIGIN = 0x80000000, LENGTH = 16M
+}
+SECTIONS {
+  . = 0x80000000;
+  .text : {
+    *(.text*)
+  }
+  .rodata : {
+    *(.rodata*)
+  }
+  .data : {
+    *(.data*)
+  }
+  .bss : {
+    *(.bss*)
+    *(COMMON)
+  }
+
+  . = ALIGN(4);
+  PROVIDE(_stack_top = ORIGIN(RAM) + LENGTH(RAM));
+}
+```
+### Startup Code (startup_intr.S)
+```
+.section .text
+.globl _start
+_start:
+    la sp, _stack_top
+    call main
+1:  wfi
+    j 1b
+```
+### Commands Used
+```bash
+nano atomic_mutex_test.c
+nano startup_intr.S
+nano intr_link.ld
+
+riscv32-unknown-elf-gcc -march=rv32imac_zicsr -mabi=ilp32 -nostdlib -nostartfiles -T intr_link.ld -o atomic_mutex_test.elf startup_intr.S atomic_mutex_test.c
+
+qemu-system-riscv32 -machine virt -nographic -bios none -kernel atomic_mutex_test.elf
+```
+## Key Observations from this Task
+ 📌We demonstrated how to implement a spinlock using lr.w and sc.w.
+
+📌Mutual exclusion was enforced between pseudo-threads thread1() and thread2().
+
+📌Spinlocks are critical in:
+
+      📌OS kernels
+
+     📌Interrupt handlers
+
+     📌Multi-core synchronization
+
+📌Lock-free data structures
+
+📌This task showed the practical utility of the A (atomic) extension in RV32IMAC ISA
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task15_Output](screenshots/task15_1.png)
+---
+
 
 
 
