@@ -35,3 +35,11 @@ Saved it to the Windows Downloads directory:
 cd /mnt/c/Users/nivet/Downloads
 sudo mkdir -p /opt/riscv
 ls -la riscv-toolchain-rv32imac-x86_64-ubuntu.tar.gz
+
+### 🚀 Step 2: Extract the RISC-V Toolchain
+
+```bash
+sudo tar -xzf riscv-toolchain-rv32imac-x86_64-ubuntu.tar.gz -C /opt/riscv --strip-components=1
+ls -la /opt/riscv/
+ls -la /opt/riscv/riscv/
+
