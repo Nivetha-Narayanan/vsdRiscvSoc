@@ -800,6 +800,136 @@ _(Include my terminal output screenshot below)_
 
 ![Task11_Output](screenshots/task11_1.png)
 ---
+# 📝 Task 12: Start-up Code & crt0
+
+## 🎯 Objective
+Understand the purpose of `crt0.S` (C RunTime Zero) in a bare-metal RISC-V program, implement a simple `crt0.S` file, link it with `main.c`, and analyze the resulting ELF and assembly.
+
+## 🔍 What does crt0.S do?
+
+- Sets up **stack pointer**.
+- Clears the **.bss section** (zero-initialized global variables).
+- Calls `main()`.
+- After `main()`, usually enters an infinite loop (no OS to return to).
+- Essential in **bare-metal** systems where no standard startup code exists.
+
+---
+
+## 🔗 Where do you get one?
+
+- **Device-specific SDKs** (e.g. SiFive Freedom E SDK)
+- **newlib** (a C standard library for embedded systems)
+## 🚀 Implementation Steps
+
+### Step 1️⃣: Write crt0.S
+
+```assembly
+    .section .text
+    .global _start
+
+_start:
+    # Set up stack pointer (example address 0x20000100)
+    lui sp, %hi(0x20000100)
+    addi sp, sp, %lo(0x20000100)
+
+    # Zero the .bss section
+    la   a0, _sbss
+    la   a1, _ebss
+
+zero_bss:
+    bge  a0, a1, bss_done
+    sw   zero, 0(a0)
+    addi a0, a0, 4
+    j    zero_bss
+
+bss_done:
+    # Call main()
+    call main
+
+hang:
+    j hang
+```
+### Step 2️⃣: Write main.c
+```c
+#include <stdint.h>
+
+int main(void) {
+    // Simple infinite loop for demonstration
+    volatile uint32_t counter = 0;
+    while (1) {
+        counter++;
+    }
+    return 0;
+}
+```
+### Step 3️⃣: Write linker.ld
+```ld
+SECTIONS
+{
+    .text 0x00000000 :
+    {
+        *(.text*)
+    }
+
+    .bss 0x20000000 (NOLOAD) :
+    {
+        _sbss = .;
+        *(.bss*)
+        _ebss = .;
+    }
+}
+```
+###  WSL Commands
+```bash
+# Create crt0.S
+nano crt0.S
+
+# Create main.c
+nano main.c
+
+# Create linker.ld
+nano linker.ld
+
+# Compile with custom linker and no start files
+riscv32-unknown-elf-gcc -nostartfiles -T linker.ld crt0.S main.c -o crt0.elf
+
+# Verify ELF sections
+riscv32-unknown-elf-objdump -h crt0.elf
+
+# Disassemble and verify startup logic
+riscv32-unknown-elf-objdump -d crt0.elf | less
+```
+### ✅ Verification
+#### ELF Sections:
+```
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000032  00000000  00000000  00001000  2**1
+  1 .bss          00000100  20000000  20000000  00002000  2**4
+```
+`.text` correctly placed at 0x00000000.  
+`.bss`correctly placed at 0x20000000.
+
+#### Disassembly of _start:
+```
+00000000 <_start>:
+   ... stack init ...
+   ... .bss zero loop ...
+   call main
+   infinite loop
+```
+## Summary
+📌crt0.S is required in bare-metal programs to perform initial hardware setup.  
+📌Without an OS, you must explicitly set the stack and initialize .bss.  
+📌It guarantees a proper environment before main() runs.  
+
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task12_Output](screenshots/task12_1.png)
+![Task12_Output](screenshots/task12_2.png)
+---
 
 
 
