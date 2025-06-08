@@ -9,3 +9,8 @@
   ```bash
   tar -xvzf riscv-toolchain-rv32imac-x86_64-ubuntu.tar.gz
 
+## 2. Added Toolchain to PATH
+
+- Navigated to the extracted folder:  
+  ```bash
+  cd riscv-toolchain-rv32imac-x86_64-ubuntu
