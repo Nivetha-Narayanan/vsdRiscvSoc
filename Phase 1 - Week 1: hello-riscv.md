@@ -249,9 +249,9 @@ ls -la hello.dump hello.hex
 100b6:   4581                li      a1,0
 100b8:   c422                sw      s0,8(sp)
 ```
-Column	Meaning
-📌 100b4:	Memory Address of instruction
-📌 1141	Machine code / raw instruction encoding
+Column	Meaning  
+📌 100b4:	Memory Address of instruction  
+📌 1141	Machine code / raw instruction encoding  
 📌 addi sp,sp,-16	Instruction mnemonic and operands
 
 ✅  breakdown:
