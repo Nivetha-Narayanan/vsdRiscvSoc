@@ -36,6 +36,7 @@ cd /mnt/c/Users/nivet/Downloads
 sudo mkdir -p /opt/riscv
 ls -la riscv-toolchain-rv32imac-x86_64-ubuntu.tar.gz
 
+---
 ### 🚀 Step 2: Extract the RISC-V Toolchain
 
 ```bash
