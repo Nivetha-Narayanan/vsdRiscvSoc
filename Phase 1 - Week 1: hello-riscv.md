@@ -52,4 +52,14 @@ ls -la /opt/riscv/riscv/
 echo 'export PATH=/opt/riscv/riscv/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 echo $PATH | grep riscv
-'''
+```
+---
+### Step 4: Verify Toolchain Installation
+
+```bash
+riscv32-unknown-elf-gcc --version
+riscv32-unknown-elf-objdump --version
+riscv32-unknown-elf-gcc -dumpmachine
+ls -la /opt/riscv/riscv/bin/ | grep riscv32
+
+
