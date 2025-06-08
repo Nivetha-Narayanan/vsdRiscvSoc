@@ -328,9 +328,64 @@ List all 32 RV32 integer registers with their ABI names and typical calling-conv
   - `tp` (x4): Thread pointer  
   - `s0` (x8) also serves as frame pointer (`fp`)  
 
+✅ **Task 5 complete:** ABI register list and calling conventions summarized.
+---
+# Task 6: Stepping with GDB
+
+## Objective
+Learn how to start `riscv32-unknown-elf-gdb` on the ELF file, set a breakpoint at `main`, step through the instructions, and inspect registers.
+
+## Commands and Steps
+
+1. **Start GDB for the RISC-V binary:**
+
+   ```bash
+   gdb-multiarch hello.elf
+   ```
+2. **Disassemble the main function to view assembly instructions:**
+```gdb
+disassemble main
+```
+3. **Check which symbol corresponds to a specific address inside main:**
+```gdb
+info symbol 0x10170
+```
+
+4. **Examine 10 instructions starting at the main address:**
+```gdb
+x/10i 0x10162
+```
+
+5. **Inspect the program entry point _start:**
+```gdb
+info symbol 0x100e2
+x/5i 0x100e2
+```
+6. **Examine the string stored at address 0x1245c used in the program:**
+
+```gdb
+x/s 0x1245c
+```
+7. **Exit the gdb:**
+   ```gdb
+   quit
+   ```
+## Observations:  
+📌The main function sets up the stack frame, saves registers, loads the address of a string literal, and calls puts.  
+📌The string "Hello, RISC-V World!" is stored at address 0x1245c.  
+📌No debugging symbols are available in the ELF file, so source-level debugging is not possible.  
+📌The program starts at _start, which sets up the environment before calling main.
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task6_Output](screenshots/task6_1.png)
+![Task6_Output](screenshots/task6_2.png)
 ---
 
-✅ **Task 5 complete:** ABI register list and calling conventions summarized.
+
+
 
 
 
