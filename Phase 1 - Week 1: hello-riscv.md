@@ -81,6 +81,40 @@ _(Include my terminal output screenshot below)_
 ![Task1_Output](screenshots/task1_1.png)
 ![Task1_Output](screenshots/task1_2.png)
 ![Task1_Output](screenshots/task1_3.png)
+---
+# 🏗️ Task 2: Cross-Compile "Hello, RISC-V"
+
+## 🎯 Objective
+
+Create a minimal C "Hello World" program and successfully cross-compile it for the RISC-V RV32 architecture, producing a valid 32-bit RISC-V ELF executable.
+
+---
+
+## 📋 Prerequisites
+
+✅ RISC-V toolchain installed and configured (Task 1 completed)  
+✅ PATH environment variable set to `/opt/riscv/riscv/bin`  
+✅ Verified `riscv32-unknown-elf-gcc` functionality  
+✅ Basic knowledge of C programming and cross-compilation  
+
+---
+
+## 🚀 Step-by-Step Implementation
+
+### Step 1: Create the Hello World C Program
+
+```bash
+nano hello.c
+```
+```c
+#include <stdio.h>
+
+int main() {
+    printf("Hello, RISC-V!\n");
+    return 0;
+}
+```
+
 
 
 
