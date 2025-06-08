@@ -1117,6 +1117,168 @@ _(Include my terminal output screenshot below)_
 
 ![Task13_Output](screenshots/task13_1.png)
 ---
+# Task 14: rv32imac vs rv32imc – What’s the “A”?
+
+## Objective
+Explain the 'A' (Atomic) extension in `rv32imac` and understand its importance.
+
+---
+
+## What is `rv32imac`?
+
+- `rv32imac` is a RISC-V instruction set configuration:
+  - **rv32** → 32-bit base integer instruction set (RV32I)
+  - **M** → Multiply/Divide extension
+  - **A** → **Atomic extension** (focus of this task)
+  - **C** → Compressed instructions (16-bit compressed forms of common instructions)
+
+---
+
+## The 'A' Extension (Atomic)
+
+- The **Atomic extension (A)** adds atomic read-modify-write memory instructions.
+- It enables multi-core processors and multi-threaded programs to perform **atomic operations**—operations that cannot be interrupted and are guaranteed to be completed without interference.
+
+### Key Instructions Added by 'A'
+
+| Instruction | Description |
+|-------------|-------------|
+| `lr.w`      | Load-Reserved Word |
+| `sc.w`      | Store-Conditional Word |
+| `amoadd.w`  | Atomic Memory Operation: Add Word |
+| `amoswap.w` | Atomic Swap Word |
+| `amoor.w`   | Atomic OR Word |
+| `amoand.w`  | Atomic AND Word |
+| `amomin.w`  | Atomic Minimum Word (signed) |
+| `amomax.w`  | Atomic Maximum Word (signed) |
+| `amominu.w` | Atomic Minimum Word (unsigned) |
+| `amomaxu.w` | Atomic Maximum Word (unsigned) |
+
+---
+
+## Why Are Atomic Instructions Useful?
+
+- **Concurrency control:**  
+  - Multiple cores/threads can safely update shared memory **without locks** or using complex synchronization mechanisms.
+  - Essential for implementing **lock-free data structures**.
+
+- **Operating Systems:**  
+  - Atomic instructions are critical for:
+    - **spinlocks**
+    - **semaphores**
+    - **mutexes**
+    - **interrupt-safe updates to shared data**
+
+- **Performance:**  
+  - Atomic instructions allow faster and more efficient synchronization compared to using software-based locking.
+
+---
+### Example Code (atomic_test.c)
+```c
+#include <stdint.h>
+
+#define UART_BASE 0x10000000
+
+void uart_puts(const char *s) {
+    volatile char *uart = (volatile char *)UART_BASE;
+    while (*s) {
+        *uart = *s++;
+    }
+}
+
+volatile uint32_t counter = 0;
+
+void atomic_increment(void) {
+    uint32_t tmp;
+    asm volatile (
+        "1: lr.w %[tmp], (%[counter])\n"
+        "   addi %[tmp], %[tmp], 1\n"
+        "   sc.w %[tmp], %[tmp], (%[counter])\n"
+        "   bnez %[tmp], 1b\n"
+        : [tmp] "=&r"(tmp)
+        : [counter] "r"(&counter)
+        : "memory"
+    );
+}
+
+void main(void) {
+    uart_puts("== Atomic Test Example ==\n");
+
+    for (int i = 0; i < 5; i++) {
+        atomic_increment();
+    }
+
+    // Simple way to display counter value (convert to ASCII)
+    char msg[] = "Final Counter Value = X\n";
+    msg[22] = '0' + counter;
+    uart_puts(msg);
+
+    while (1) {
+        asm volatile("wfi");
+    }
+}
+```
+### Linker Script (intr_link.ld)
+```ld
+OUTPUT_ARCH(riscv)
+ENTRY(_start)
+
+MEMORY {
+  RAM (rwx) : ORIGIN = 0x80000000, LENGTH = 16M
+}
+SECTIONS {
+  . = 0x80000000;
+  .text : {
+    *(.text*)
+  }
+  .rodata : {
+    *(.rodata*)
+  }
+  .data : {
+    *(.data*)
+  }
+  .bss : {
+    *(.bss*)
+    *(COMMON)
+  }
+
+  . = ALIGN(4);
+  PROVIDE(_stack_top = ORIGIN(RAM) + LENGTH(RAM));
+}
+```
+### Startup Code (startup_intr.S)
+```
+.section .text
+.globl _start
+_start:
+    la sp, _stack_top
+    call main
+1:  wfi
+    j 1b
+```
+### Commands Used
+```bash
+nano atomic_test.c
+nano startup_intr.S
+nano intr_link.ld
+
+riscv32-unknown-elf-gcc -march=rv32imac_zicsr -mabi=ilp32 -nostdlib -nostartfiles -T intr_link.ld -o atomic_test.elf startup_intr.S atomic_test.c
+
+qemu-system-riscv32 -machine virt -nographic -bios none -kernel atomic_test.elf
+```
+## Summary
+📌The ‘A’ extension allows atomic operations via lr.w, sc.w, amoadd.w, etc.  
+📌These are used for building efficient lock-free data structures and synchronization mechanisms.  
+📌In this task, we demonstrated atomic increment using lr.w and sc.w.  
+
+## 📸 Implementation Output
+
+_(Include my terminal output screenshot below)_
+
+
+![Task14_Output](screenshots/task14_1.png)
+---
+
 
 
 
